@@ -5,17 +5,8 @@
       "Sid": "PublicReadGetObject",
       "Effect": "Allow",
       "Principal": "*",
-      "Action": [
-        "s3:GetObject"
-      ],
-      "Resource": [
-        "arn:aws:s3:::${bucket_name}/*"
-      ],
-      "Condition": {
-        "StringEquals": {
-          "aws:UserAgent": "Amazon CloudFront"
-        }
-      }
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::${bucket_name}/*"
     }
   ]
 }

@@ -53,8 +53,13 @@ variable "kms_master_key_id" {
 }
 
 # -----------------------------------------------------------------------
-# Using ACL policy grants
+# Bucket ACL
 # -----------------------------------------------------------------------
+variable "object_ownership" {
+  type    = string
+  default = "BucketOwnerEnforced"
+}
+
 variable "acl" {
   type    = string
   default = null
@@ -107,6 +112,11 @@ variable "versioning_mfa_delete" {
 # -----------------------------------------------------------------------
 # Website Configuration
 # -----------------------------------------------------------------------
+variable "website_enabled" {
+  type    = bool
+  default = false
+}
+
 variable "index_document_suffix" {
   type    = string
   default = "index.html"

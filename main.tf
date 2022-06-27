@@ -30,8 +30,17 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "mod" {
 }
 
 # -----------------------------------------------------------------------
-# Using ACL policy grants
+# Bucket ACL
 # -----------------------------------------------------------------------
+# ACL無効化が推奨されている
+resource "aws_s3_bucket_ownership_controls" "mod" {
+  bucket = aws_s3_bucket.mod.bucket
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
 resource "aws_s3_bucket_acl" "mod" {
   count  = var.acl == null ? 0 : 1
   bucket = aws_s3_bucket.mod.bucket
@@ -41,17 +50,17 @@ resource "aws_s3_bucket_acl" "mod" {
 # -----------------------------------------------------------------------
 # Bucket Policy
 # -----------------------------------------------------------------------
-resource "aws_s3_bucket_policy" "mod" {
-  count = var.policy == null ? var.acl == "private" ? 0 : 1 : 1
-  bucket = aws_s3_bucket.mod.bucket
-
-  policy = var.acl != "log-delivery-write" ? var.acl != "public-read" ? var.policy : templatefile("${path.module}/files/bucket-policy-public.json", {
-    bucket_name = local.name,
-    }) : templatefile("${path.module}/files/bucket-policy-logs.json", {
-    bucket_name     = local.name,
-    elb_account_arn = data.aws_elb_service_account.main.arn
-  })
-}
+#resource "aws_s3_bucket_policy" "mod" {
+#  count = var.policy == null ? var.acl == "private" ? 0 : 1 : 1
+#  bucket = aws_s3_bucket.mod.bucket
+#
+#  policy = var.acl != "log-delivery-write" ? var.acl != "public-read" ? var.policy : templatefile("${path.module}/files/bucket-policy-public.json", {
+#    bucket_name = local.name,
+#    }) : templatefile("${path.module}/files/bucket-policy-logs.json", {
+#    bucket_name     = local.name,
+#    elb_account_arn = data.aws_elb_service_account.main.arn
+#  })
+#}
 
 # -----------------------------------------------------------------------
 # Public Access Block
@@ -79,7 +88,7 @@ resource "aws_s3_bucket_versioning" "mod" {
 # Website Configuration
 # -----------------------------------------------------------------------
 resource "aws_s3_bucket_website_configuration" "mod" {
-  count  = var.acl != "public-read" ? 0 : 1
+  count  = var.website_enabld ? 1 : 0
   bucket = aws_s3_bucket.mod.bucket
 
   index_document {
@@ -94,10 +103,10 @@ resource "aws_s3_bucket_website_configuration" "mod" {
 # -----------------------------------------------------------------------
 # Logging
 # -----------------------------------------------------------------------
-resource "aws_s3_bucket_logging" "mod" {
-  count  = var.acl != "public-read" ? 0 : 1
-  bucket = aws_s3_bucket.mod.id
-
-  target_bucket = var.log_bucket
-  target_prefix = "s3/domain=${local.name}/"
-}
+#resource "aws_s3_bucket_logging" "mod" {
+#  count  = var.acl != "public-read" ? 0 : 1
+#  bucket = aws_s3_bucket.mod.id
+#
+#  target_bucket = var.log_bucket
+#  target_prefix = "s3/domain=${local.name}/"
+#}
